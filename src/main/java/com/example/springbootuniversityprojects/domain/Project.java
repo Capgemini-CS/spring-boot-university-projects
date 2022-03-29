@@ -13,4 +13,5 @@ public class Project {
     private int id;
     private String projectTitle;
     private Boolean availability;
+
 }

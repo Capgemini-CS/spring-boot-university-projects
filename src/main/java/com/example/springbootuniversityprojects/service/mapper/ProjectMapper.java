@@ -15,9 +15,9 @@ public class ProjectMapper {
 
     public static Project projectDtoToProject(ProjectDto projectDto){
         Project project = new Project();
-        project.setId(project.getId());
-        project.setProjectTitle(project.getProjectTitle());
-        project.setAvailability(project.getAvailability());
+        project.setId(projectDto.getId());
+        project.setProjectTitle(projectDto.getProjectTitle());
+        project.setAvailability(projectDto.getAvailability());
         return project;
     }
 
