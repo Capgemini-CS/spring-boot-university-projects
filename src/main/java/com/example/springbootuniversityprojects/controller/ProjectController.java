@@ -4,12 +4,14 @@ import com.example.springbootuniversityprojects.domain.Project;
 import com.example.springbootuniversityprojects.domain.dto.ProjectDto;
 import com.example.springbootuniversityprojects.exception.JsonFormatException;
 import com.example.springbootuniversityprojects.exception.NoSuchProjectException;
+import com.example.springbootuniversityprojects.exception.ResponseMessage;
 import com.example.springbootuniversityprojects.service.ProjectService;
 import com.example.springbootuniversityprojects.service.util.UtilConvertor;
 import com.example.springbootuniversityprojects.validation.NumberValidation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 import org.tinylog.Logger;
 
@@ -37,13 +39,13 @@ public class ProjectController {
 
     }
 
-    @GetMapping("/all")
+    @GetMapping(value = "/all", produces = "application/json")
     public ResponseEntity<List<ProjectDto>> getAllProjects(){
        List<ProjectDto> projectsList = projectService.getAllProjects();
        return new ResponseEntity<>(projectsList, HttpStatus.OK);
     }
 
-    @PostMapping("/save")
+    @PostMapping(value = "/save", produces = "application/json")
     public ResponseEntity<Project> saveProject(@Valid @RequestBody ProjectDto projectDto) throws JsonFormatException {
         Project createdProject = projectService.addProject(projectDto);
         try {
@@ -56,8 +58,8 @@ public class ProjectController {
 
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<ProjectDto> getProject(@RequestParam(value = "id") String id){
+    @GetMapping(value = "/{id}", produces = "application/json" )
+    public ResponseEntity<ProjectDto> getProject(@PathVariable(value = "id") String id){
         ProjectDto projectDto;
         if(numberValidation.isNumeric(id)){
            projectDto = projectService.getProjectById(utilConvertor.stringToInt(id));
@@ -70,8 +72,8 @@ public class ProjectController {
     }
 
 
-    @PostMapping("/edit/{id}")
-    public ResponseEntity<Project> updateProject(@RequestParam(value = "id")String id, @Valid @RequestBody ProjectDto projectDto){
+    @PutMapping(value = "/edit/{id}", produces = "application/json")
+    public ResponseEntity<Project> updateProject(@PathVariable(value = "id")String id, @Valid @RequestBody ProjectDto projectDto){
         Project updatedProject;
         if(numberValidation.isNumeric(id)) {
                updatedProject = projectService.updateProject(utilConvertor.stringToInt(id), projectDto);
@@ -83,14 +85,14 @@ public class ProjectController {
 
     }
 
-    @ExceptionHandler(JsonFormatException.class)
-    public ResponseEntity<String> handleJsonFormatException(Exception exception){
-        return new ResponseEntity<String>("Invalid Json format: " + exception.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+    @ExceptionHandler({MethodArgumentNotValidException.class, JsonFormatException.class})
+    public ResponseEntity<ResponseMessage> handleJsonFormatException(Exception exception){
+        return new ResponseEntity<ResponseMessage>(new ResponseMessage("INVALID INPUT"), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @ExceptionHandler(NoSuchProjectException.class)
-    public ResponseEntity<String> handleNotFound(Exception exception){
-        return new ResponseEntity<String>("Project not found: " + exception.getMessage(), HttpStatus.NOT_FOUND);
+    public ResponseEntity<ResponseMessage> handleNotFound(Exception exception){
+        return new ResponseEntity<ResponseMessage>(new ResponseMessage("NO SUCH PROJECT"), HttpStatus.NOT_FOUND);
     }
 
 

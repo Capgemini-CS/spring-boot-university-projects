@@ -13,10 +13,8 @@ import javax.validation.constraints.NotNull;
 @NoArgsConstructor
 public class Project {
 
-    @NotNull
     private int id;
 
-    @NotNull
     private String projectTitle;
 
     private Boolean availability;
